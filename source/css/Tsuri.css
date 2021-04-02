@@ -1,0 +1,57 @@
+button{
+	border: black solid 3px;
+	position: relative;
+	height: 38px;
+	box-shadow: none;
+
+}
+
+/*ページ読み込みへのボタン*/
+    .btn_lod{
+	margin-top: -5px;
+	width: 91px;
+	font-size: 15px;
+	margin: 0px;
+	margin-top: -8px;
+	box-shadow: none;
+	padding: 5px;
+	padding-bottom: 15px;
+	height: 49px;
+	left: 0px;
+    }
+
+/*ページ描写へのボタン*/
+    .btn_pag{
+	margin-top: -5px;
+	width: 91px;
+	padding: 5px;
+	font-size: 15px;
+	margin: 0px;	
+	margin-top: -8px;
+	left: -2px;
+    }
+
+/*もちものへのボタン*/
+    .btn_ite{
+	margin-top: -5px;
+	width: 91px;
+	padding: 5px;
+	font-size: 15px;
+	margin: 0px;
+	margin-top: -8px;
+	left: -4px;
+    }
+
+/*設定へのボタン*/
+    .btn_set{
+	margin-top: -5px;
+	width: 91px;
+	padding: 5px;
+	font-size: 15px;
+	margin: 0px;
+	margin-top: -8px;
+	width:93px;
+	left: -6px;
+		
+      font-weight: bold;
+    }

@@ -1,0 +1,79 @@
+<flag:0>
+
+<item:0>
+</item>
+
+<map:2>
+[0]
+n:バトル！
+^互いにただ攻撃し合うだけの単純な戦闘です。
+^
+^攻撃時のダメージには若干の乱数(1.3~0.7倍)が掛け合わされています。
+^
+^(ステータスを変更したい場合は、本txtの14行目を変更してください。
+^0:自最大HP, 1:自HP(rnum(0)), 2:自攻撃力, 3:敵最大HP, 4:敵HP(rnum(3)), 5:敵攻撃力に対応しています。)
+s:次へ#mov(1);wnum(0, 100);wnum(1, rnum(0));wnum(2, 13);wnum(3, 120);wnum(4, rnum(3)); wnum(5, 10);gebi('e_hp', rnum(4)); gebi('e_mhp', rnum(3)); gebi('e_ap', rnum(5)); gebi('m_hp', rnum(1));gebi('m_mhp', rnum(0)); gebi('m_ap', rnum(2));
+
+[1]
+n:バトル
+^敵のHP：<span id='e_hp'></span> / <span id='e_mhp'></span>
+^敵の攻撃力：<span id='e_ap'></span>
+^##################
+^自分のHP：<span id='m_hp'></span> / <span id='m_mhp'></span>
+^自分の攻撃力：<span id='m_ap'></span>
+^==================
+^
+^<span id='medo'></span>
+^
+^<span id='endo'></span>
+s:ターンをすすめる#wnum(6, ceil(rnum(2)*(1.3-0.6*rand()))); wnum(7, ceil(rnum(5)* (1.3-0.6*rand()))); /*以上がダメージ計算、これをnminnで引く*/nminn(1, 7); nminn(4, 6); if(rnum(1)<=0 && rnum(4)<=0){/*相討ち*/mov(2);wnum(1, 0);wnum(4, 0);}else if(rnum(1)<=0){/*敗北*/mov(3);wnum(1, 0);}else if(rnum(4)<=0){/*勝利*/mov(4);wnum(4, 0);}else{/*バトル続行*/mov(1);} /*戦果の表示*/gebi('medo', '自分の攻撃！' + rnum(6) + 'ダメージ！');  gebi('endo', '敵の攻撃！' + rnum(7) + 'ダメージ！'); gebi('e_hp', rnum(4)); gebi('e_mhp', rnum(3)); gebi('e_ap', rnum(5)); gebi('m_hp', rnum(1));gebi('m_mhp', rnum(0)); gebi('m_ap', rnum(2)); 
+
+[2]
+n:相討ち…
+^敵のHP：<span id='e_hp'></span> / <span id='e_mhp'></span>
+^敵の攻撃力：<span id='e_ap'></span>
+^##################
+^自分のHP:<span id='m_hp'></span> / <span id='m_mhp'></span>
+^自分の攻撃力:<span id='m_ap'></span>
+^==================
+^
+^<span id='medo'></span>
+^
+^<span id='endo'></span>
+^
+^
+^激闘の末、相討ちとなった…無念！
+
+[3]
+n:敗北…
+^敵のHP：<span id='e_hp'></span> / <span id='e_mhp'></span>
+^敵の攻撃力：<span id='e_ap'></span>
+^##################
+^自分のHP:<span id='m_hp'></span> / <span id='m_mhp'></span>
+^自分の攻撃力:<span id='m_ap'></span>
+^==================
+^
+^<span id='medo'></span>
+^
+^<span id='endo'></span>
+^
+^
+^奮闘むなしく、敗北…！無念！
+
+[4]
+n:勝利！！
+^敵のHP：<span id='e_hp'></span> / <span id='e_mhp'></span>
+^敵の攻撃力：<span id='e_ap'></span>
+^##################
+^自分のHP:<span id='m_hp'></span> / <span id='m_mhp'></span>
+^自分の攻撃力:<span id='m_ap'></span>
+^==================
+^
+^<span id='medo'></span>
+^
+^<span id='endo'></span>
+^
+^
+^敵に打ち勝った！大勝利だ！！！
+</map>
+<end>

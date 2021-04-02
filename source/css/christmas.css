@@ -1,0 +1,67 @@
+body{
+	background-color:#085e30;
+	color:#fdfdff;
+}
+
+
+/*ページ読み込み、ページ描写、アイテム、設定のdiv*/
+    .mydiv{
+      padding-top:10px;
+      width:360px;
+      height:550px;
+      display:none;
+    }
+
+/*ページ読み込みへのボタン*/
+    .btn_lod{
+      background-color: #cdd6d8;
+      box-shadow:3px 3px 0px 0px black;
+      margin:5px;
+      border: #474322 solid 2px;
+      	color: #4c3410;
+    }
+
+/*ページ描写へのボタン*/
+    .btn_pag{
+      background-color:#f3bd45;
+      margin:5px;
+      border: #474322 solid 2px;
+      	color: #4c3410;
+    }
+
+/*もちものへのボタン*/
+    .btn_ite{
+      background-color:#cdd6d8;
+      margin:5px;
+      border: #474322 solid 2px;
+      	color: #4c3410;
+    }
+
+/*設定へのボタン*/
+    .btn_set{
+      background-color:#f3bd45;
+      color:#4c3410;
+      border: #474322 solid 2px;
+      font-weight: bold;
+      margin:5px;
+    }
+
+/*ページ読み込みのinput fileのところ*/
+    .load_div{
+      border:#ff1100 double 4px;
+      background-color:#085e32;
+    }
+
+/*もちものタグのラジオボタン*/
+    .li_sel{
+      font-weight: bold;
+      text-decoration: underline;
+		font-size:x-large;
+    }
+
+
+    .div_border{
+      padding: 8px;
+      border:#e43d19 solid 5px;
+      background-color: #085e32;
+    }

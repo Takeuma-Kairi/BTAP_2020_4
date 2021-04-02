@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8"> <!--日本語-->
+  <meta name="viewport" content="width=device-width" />
+  <link rel="stylesheet" href="source/css/mono.css" type="text/css" id="css"> <!--色合い-->
+  <link rel="stylesheet" href="source/css/Tsuri.css" type="text/css" id="css2"> <!--上からの吊り下げ-->
+  <link rel="shortcut icon" href="BTAicon.png" type="image/png"> <!--ファビコン-->
+  
+</head>
+<body><div id="div_soroe" style="padding-left:10px;margin-top:-5px">
+	<div><!--ボタンをそろえる--><button class="btn_lod" id="btn_load" onclick="block_d_load()">読み込み</button><button class="btn_pag" id="btn_desc" onclick="block_d_desc()">ページ</button><button class="btn_ite" id="btn_item" onclick="block_d_item()">持ち物</button><button class="btn_set" id="btn_set" onclick="block_d_set()">設定</button>
+	</div>
+	
+	
+    <div style="position: relative;margin:0px;"> <!--ボタン下の本文部分をそろえる-->
+    <!--ページロード -->
+    <div id="d_load" class="mydiv" style="display:inline-block">
+      <div class="load_div" style="padding:20px;">
+        ページデータファイルを選択してください
+        <form id="form_page">
+          <input id="myfile" type="file" />
+        </form>
+      </div>
+    </div>
+
+
+    <!-- 描写 -->
+    <div id="d_desc" class="mydiv" style="text-align:left">
+      <div id="d_page" class="div_border" style="overflow:auto;height:510px;">
+      </div>
+    </div>
+
+
+    <!-- アイテム -->
+      <div id="d_item" class="mydiv" style="text-align:left">
+        <div id="d_item_sel" class="div_border" style="overflow:auto;height:257px;">
+        </div>
+        <div id="d_item_exp" class="div_border" style="overflow:auto;height:230px;border-top-width:0px;">
+        </div>
+      </div>
+
+
+      <!-- 設定 -->
+      <div id="d_set" class="mydiv" style="height:510px;text-align:left">
+        <div id="d_page" class="div_border" style="height:510px;">
+          <p>
+            <label>色合いを変更</br>
+              <select name="css" size="1" onchange="change_css(this.value);">
+                <option value="source/css/mono.css" selected>モノクロ</option>
+                <option value="source/css/dark_mono.css">灰色</option>
+                <option value="source/css/akisame.css">秋</option>
+                <option value="source/css/tukimi.css">月見</option>
+                <option value="source/css/maroon.css">栗</option>
+                <option value="source/css/mokusei.css">きんもくせい</option>
+                <option value="source/css/haloween.css">ハロウィン</option>
+                <option value="source/css/christmas.css">クリスマス</option>
+                <option value="source/css/new_year.css">謹賀新年</option>
+
+              </select>
+            </label>
+          </p>
+
+          <p>
+            <label>セーブデータ書き込み<br>
+              <button onclick="write_savefile()">セーブデータ取得</button>
+              <button onclick="load_savefile(document.getElementById('t_savedata').value)">再ロード</button><br>
+              <textarea id="t_savedata" rows="3" cols="30"></textarea>
+            </label>
+          </p>
+
+          <p>
+            <label>セーブデータの読み込み<br>
+                <form id="form_save">
+                  <input type="file" id="savefile"/>
+                </form>
+            </label>
+          </p>
+
+          <p>
+            <label>横幅の調節<br>
+              <select name="yoko" size="1" onchange="yoko_resize(this.value)">
+                <option value="1" selected>縦長</option>
+                <option value="2">正方形</option>
+              </select>
+            </label>
+          </p>
+
+          <p>
+            <label>左右中央揃え</br>
+              <select name="sayuchuo" size="1" onchange="sayuchuo_change(this.value)">
+                <option value="1" selected>左揃え</option>
+                <option value="2">中央揃え</option>
+                <option value="3">右揃え</option>
+              </select>
+            </label>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+  <script>
+  var flgarr = [];  //フラグ
+  var itearr = [];  //アイテム[nam:名前, exp:説明, hav:true/falseで所有]
+  var fiearr = [];  //フィールド[nam:名前, exp:説明, sel:[選択肢名, 実行文章]]
+  var fie = 0;      //フィールド番号
+  var numarr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];  //番号配列（フラグの補助的な）
+  
+  
+  //cssの参照パスを変更する
+  function change_css(pat){
+    document.getElementById("css").href = pat;
+  }
+
+//==============================================================================
+//セーブデータ~===================================================================
+  //セーブデータを変更する。ファイルへの書き出しの
+
+  function write_savefile(){
+    try{
+      var savedata = makesave();
+      var t_savedata = document.getElementById("t_savedata")
+
+      t_savedata.innerHTML = savedata;
+      alert("セーブデータを下に書き出しました。\nセーブファイルにペーストして上書きしてください。");
+      t_savedata.select();
+      document.execCommand("copy");
+
+    }catch{
+      alert("エラーあり。")
+    }
+  }
+
+//セーブデータのロード
+  document.getElementById("savefile").addEventListener('change', function(evt){
+    try{
+      var myFile = document.getElementById("savefile").files[0];
+      var reader = new FileReader();
+      reader.onload = function (evt){
+        var txt = evt.target.result;
+        load_savefile(txt);   //savefileをloadする
+      }
+      reader.readAsText(myFile, "utf-8");
+
+      document.getElementById("form_save").reset();
+    }catch{
+      alert("ファイル選択にエラーあり。");
+    }
+  });
+
+
+  //セーブデータのロード
+  function load_savefile(txt){
+    document.getElementById("t_savedata").textContent = txt;
+
+	txt = txt.replace(/\r\n/g,'\n'); //改行コードの統一
+	txt = txt.replace(/\r/g, '\n');	 //改行コードの統一
+	
+    var arr = txt.split("\n");
+    for(var i = 0;i < arr.length;i++){
+      if(arr[i].match(/flg:(.*)/)){             //フラグ
+        for(var j = 0;j < RegExp.$1.length;j++){
+          if(RegExp.$1.charAt(j) == "f"){
+            flgarr[j] = false;
+          }else{
+            flgarr[j] = true;
+          }
+        }
+
+      }else if(arr[i].match(/ite:(.*)/)){       //道具
+        for(var j = 0; j < RegExp.$1.length; j++){
+          if(RegExp.$1.charAt(j) == "f"){
+            itearr[j]["hav"] = false;
+          }else{
+            itearr[j]["hav"] = true;
+          }
+        }
+      }else if(arr[i].match(/fie:(.*)/)){       //ページ名
+        fie = parseInt(RegExp.$1);
+      }else if(arr[i].match(/num:(.*)/)){       //ページ名
+        numarr = RegExp.$1.split(",");
+      }
+    }
+
+    show_page();
+    block_d_desc();
+    alert("セーブデータがロードされました。")
+  }
+
+
+
+//セーブデータ書き込み用
+  function makesave(){
+    var ans = "flg:";    //フラグ
+    for(var i=0;i<flgarr.length;i++){
+      if(flgarr[i]){
+        ans += "t";
+      }else{
+        ans += "f";
+      }
+    }
+
+    ans += "\nite:";     //アイテム
+    for(var i=0;i<itearr.length;i++){
+      if(itearr[i]["hav"]){
+        ans += "t";
+      }else{
+        ans += "f";
+      }
+    }
+
+    ans += "\nfie:" + fie + "";  //ページ番号
+
+    ans += "\nnum:" + numarr[0];     //番号
+    for(var i = 1;i < numarr.length; i++){
+      ans += "," + numarr[i];
+    }
+
+    return(ans);
+  }
+
+//==============================================================================
+  //ページデータを得る。ファイルからの読み込み
+  document.getElementById("myfile").addEventListener('change', function(evt){
+    try{
+      var myFile = document.getElementById("myfile").files[0];
+      var reader = new FileReader();
+      reader.onload = function (evt){
+        var txt = evt.target.result;
+        load_date(txt);   //load_dateへと送る
+      }
+      reader.readAsText(myFile, "utf-8");
+      document.getElementById("form_page").reset();
+    }catch{
+      alert("ファイル選択にエラーがあります。");
+    }
+  });
+
+
+  //ページデータを整形して得る
+  function load_date(scr){
+    fie=0;
+	
+	
+	scr = scr.replace(/\r\n/g,'\n'); //改行コードの統一
+	scr = scr.replace(/\r/g, '\n');	 //改行コードの統一
+	
+    var arr = scr.split("\n");
+    var myRE = new RegExp("flag:(.+)>");
+
+    if(!arr[0].match(/flag:(.+)>/)){
+      alert("ページデータとして不適なものが選択されました。");
+    }else{
+
+      //走査する
+      for(i=0;i<arr.length;i++){
+
+        //「フラグ」タグ
+        if(arr[i].match(/flag:(.+)>/)){
+          flgarr = new Array(parseInt(RegExp.$1));
+          for(var j=0;j<flgarr.length;j++){
+            flgarr[j]=false;   //flagarrの初期化
+          }
+          i++;
+        }
+
+        //「アイテム」タグ
+        if(arr[i].match(/item:(.+)>/)){
+          itearr = new Array(parseInt(RegExp.$1));
+
+          for(;i<arr.length;i++){     //タグの終わりまでforを続行する
+            if(arr[i] == "</item>"){  //タグの終わり
+              break;
+            }else{
+              //アイテムタグを、名前と説明に分ける
+              if(arr[i].match(/\[(.+?)\](.+?)#(.+)/)){
+                //ルビの設定をはさむ。r2は名前、r3は説明のもの
+                var r1 = RegExp.$1;
+                var r2 = RegExp.$2.replace(/<r>(.+?)#(.+?)<\/r>/g, "<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>");
+                var r3 = RegExp.$3.replace(/<r>(.+?)#(.+?)<\/r>/g, "<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>");
+
+                itearr[parseInt(r1)] = {nam: r2, exp: r3, hav:false};
+              }
+            }
+          }
+          i++;
+        }
+
+
+        //「マップ(フィールド)」タグ
+        if(arr[i].match(/map:([0-9]+)>/)){
+          fiearr = new Array(parseInt(RegExp.$1));
+          var temp_map=0;
+
+          for(;i<arr.length;i++){    //タグの終わりまでforを続行する
+            if(arr[i] == "</map>"){  //タグの終わり
+              break;
+            }else{
+              if(arr[i].match(/\[(.+?)\]/)){  //フィールド番号
+                temp_map=parseInt(RegExp.$1);
+                fiearr[temp_map]={nam: "", exp:"", sel:[]};
+
+              }else if(arr[i].match(/n:(.+)/)) {  //名前
+                //ルビの設定をはさむ
+                var r1 = RegExp.$1.replace(/<r>(.+?)#(.+?)<\/r>/g, "<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>");
+                fiearr[temp_map]["nam"] = r1;
+
+              }else if(arr[i].match(/e:(.+)/)) {  //説明文
+                //ルビの設定をはさむ
+                var r1 = RegExp.$1.replace(/<r>(.+?)#(.+?)<\/r>/g, "<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>");
+                fiearr[temp_map]["exp"] = r1;
+
+              }else if(arr[i].match(/\^\^(.*)$/)){  //改行を簡潔にした説明文
+                var r1 = RegExp.$1.replace(/<r>(.+?)#(.+?)<\/r>/g, "<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>");
+                fiearr[temp_map]["exp"] += r1;
+
+              }else if(arr[i].match(/\^(.*)$/)){  //改行を簡潔にした説明文
+                var r1 = RegExp.$1.replace(/<r>(.+?)#(.+?)<\/r>/g, "<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>");
+                fiearr[temp_map]["exp"] += r1 + "<br>";
+
+              }else if(arr[i].match(/s:(.+)#(.+)/)) { //選択肢
+                fiearr[temp_map]["sel"].push(new Array(RegExp.$1, RegExp.$2));
+                console.log(RegExp.$2);
+              }
+            }
+          }
+        }
+      }
+      //ページ表示させる
+      block_d_desc();
+      show_page();
+    }
+  }
+
+//==============================================================================
+  //「ページ」タブの表示
+  function show_page(){
+    var page=document.getElementById("d_page");
+
+    //ページ名＆ページ説明
+    var ans= '<p><span style="font-size:200%;font-weight:bold;"> ' + fiearr[fie]["nam"] + "</span></p><span>"
+                      + fiearr[fie]["exp"] + "</span><ul>";
+
+    //ページの選択肢
+    for(var i=0;i<fiearr[fie]["sel"].length;i++){
+      ans += '<li class="li_sel" onclick="' + fiearr[fie]["sel"][i][1] + '">'
+                        + fiearr[fie]["sel"][i][0] + "</li>";
+    }
+    ans += "</ul>";
+
+    page.innerHTML = ans;
+  }
+
+//ボタンを押した場合のタブ移動=================================================
+  //div要素それぞれの参照を変数に
+  var v_d_load = document.getElementById("d_load");
+  var v_d_desc = document.getElementById("d_desc");
+  var v_d_item = document.getElementById("d_item");
+  var v_d_set = document.getElementById("d_set");
+
+  //button要素それぞれの参照を変数に
+  var v_b_load = document.getElementById("btn_load");
+  var v_b_desc = document.getElementById("btn_desc");
+  var v_b_item = document.getElementById("btn_item");
+  var v_b_set = document.getElementById("btn_set");
+
+	var arr_v_b = [v_b_load, v_b_desc, v_b_item, v_b_set];
+	
+	
+//loadのdivを表示する
+function block_d_load(){
+    v_d_load.style.display="inline-block";
+    v_d_desc.style.display="none";
+    v_d_item.style.display="none";
+    v_d_set.style.display="none";
+	
+    /*ボタンを影付きで強調していた。
+    v_b_load.style.boxShadow="3px 3px 0px 0px black";
+    v_b_desc.style.boxShadow="0px 0px";
+    v_b_item.style.boxShadow="0px 0px";
+    v_b_set.style.boxShadow="0px 0px";*/
+
+	for(var i=0; i<arr_v_b.length; i++){	//ボタンについて、まずは全て一緒の設定に
+		with(arr_v_b[i].style){
+			height= "38px";
+			paddingBottom = "5px";
+		}
+	}
+	
+	with(arr_v_b[0].style){	//特定のボタンだけ、下に伸ばす
+		height = "49px";
+		paddingBottom = "15px";
+	}
+
+  }
+  //descのdivを表示する
+  function block_d_desc(){
+    v_d_load.style.display="none";
+    v_d_desc.style.display="inline-block";
+    v_d_item.style.display="none";
+    v_d_set.style.display="none";
+
+    /*v_b_load.style.boxShadow="0px 0px";
+    v_b_desc.style.boxShadow="3px 3px 0px 0px black";
+    v_b_item.style.boxShadow="0px 0px";
+    v_b_set.style.boxShadow="0px 0px";*/
+    
+    for(var i=0; i<arr_v_b.length; i++){	//ボタンについて、まずは全て一緒の設定に
+		with(arr_v_b[i].style){
+			height= "38px";
+			paddingBottom = "5px";
+		}
+	}
+	
+	with(arr_v_b[1].style){	//特定のボタンだけ、下に伸ばす
+		height = "49px";
+		paddingBottom = "15px";
+	}
+  }
+  //itemのdivを表示する
+  function block_d_item(){
+    document.getElementById("d_load").style.display="none";
+    document.getElementById("d_desc").style.display="none";
+    document.getElementById("d_item").style.display="inline-block";
+    document.getElementById("d_set").style.display="none";
+
+    /*v_b_load.style.boxShadow="0px 0px";
+    v_b_desc.style.boxShadow="0px 0px";
+    v_b_item.style.boxShadow="3px 3px 0px 0px black";
+    v_b_set.style.boxShadow="0px 0px";*/
+
+	for(var i=0; i<arr_v_b.length; i++){	//ボタンについて、まずは全て一緒の設定に
+		with(arr_v_b[i].style){
+			height= "38px";
+			paddingBottom = "5px";
+		}
+	}
+	
+	with(arr_v_b[2].style){	//特定のボタンだけ、下に伸ばす
+		height = "49px";
+		paddingBottom = "15px";
+	}
+
+    display_ite();
+  }
+
+
+  //setのdivを表示する
+  function block_d_set(){
+    document.getElementById("d_load").style.display="none";
+    document.getElementById("d_desc").style.display="none";
+    document.getElementById("d_item").style.display="none";
+    document.getElementById("d_set").style.display="inline-block";
+
+    /*v_b_load.style.boxShadow="0px 0px";
+    v_b_desc.style.boxShadow="0px 0px";
+    v_b_item.style.boxShadow="0px 0px";
+    v_b_set.style.boxShadow="3px 3px 0px 0px black";*/
+    
+	for(var i=0; i<arr_v_b.length; i++){	//ボタンについて、まずは全て一緒の設定に
+		with(arr_v_b[i].style){
+			height= "38px";
+			paddingBottom = "5px";
+		}
+	}
+	
+	with(arr_v_b[3].style){	//特定のボタンだけ、下に伸ばす
+		height = "49px";
+		paddingBottom = "15px";
+	}
+  }
+
+
+
+  //アイテムの有無でオプションボタンを変える===========================================
+  function display_ite(){
+    var item_sel = document.getElementById("d_item_sel");
+    var item_exp = document.getElementById("d_item_exp");
+    item_exp.innerHTML="";
+    item_sel.innerHTML="";
+
+    for(var i=0;i<itearr.length;i++){
+      if(itearr[i]["hav"]){
+        //「もちもの」タブにラジオボタンを追加する。
+        item_sel.innerHTML += '<label><input type="radio" name="item" onclick="' +
+                                'document.getElementById(&quot;d_item_exp&quot;).innerHTML=&quot;' +
+                                itearr[i]["exp"] + '&quot;"/>' +
+                                itearr[i]["nam"] + "</label><br>";
+      }
+    }
+  }
+
+//divのwidthの変更===============================================================
+function yoko_resize(x){
+  switch(x){
+  case "1":
+      v_d_load.style.width = "360px";
+      v_d_desc.style.width = "360px";
+      v_d_item.style.width = "360px";
+      v_d_set.style.width = "360px";
+      break;
+  case "2":
+      v_d_load.style.width = "550px";
+      v_d_desc.style.width = "550px";
+      v_d_item.style.width = "550px";
+      v_d_set.style.width = "550px";
+      break;
+  }
+}
+
+//====================================================
+//全体の左右中央そろえ
+function sayuchuo_change(x){
+  var soroe = document.getElementById("div_soroe");
+
+  switch(x){
+    case "1":
+      soroe.style.textAlign = "left";
+      break;
+
+    case "2":
+      soroe.style.textAlign = "center";
+      break;
+
+    case "3":
+      soroe.style.textAlign = "right";
+      break;
+  }
+}
+  //スクリプトでかける関数=========================================================-
+  //マップ移動
+  function mov(tow) {
+    fie = tow;
+    show_page();
+  }
+
+  //アイテム獲得
+  function geti(n){
+    itearr[n]["hav"]=true;
+  }
+
+  //アイテムをなくす
+  function losi(n){
+    itearr[n]["hav"]=false;
+  }
+
+  //フラグtrueに
+  function onflg(n){
+    flgarr[n]=true;
+  }
+
+  //フラグfalseに
+  function offlg(n){
+    flgarr[n]=false;
+  }
+
+  //フラグがtrueか
+  function iflg(n){
+    return(flgarr[n]);
+  }
+
+  //道具を持っているか
+  function hav(n){
+    return(itearr[n]["hav"]);
+  }
+
+  //document.getElementById(id).innerHTML = str の糖衣
+  function gebi(id, str){
+    document.getElementById(id).innerHTML = str;
+  }
+
+  //番号の書き込み
+  function wnum(i, num){
+    numarr[i] = num;
+  }
+
+  //番号の読み込み
+  function rnum(i){
+    return(numarr[i])
+  }
+
+  //numarrの引き算(numarr要素からnumarr要素を引く)
+  function nminn(n1, n2){
+    numarr[n1] -= numarr[n2];
+  }
+
+  //numarrの引き算(numarr要素から実際に数字を引く)
+  function nminx(n, x){
+    numarr[n] -= x;
+  }
+
+
+  //numarrの足し算(numarr要素にnumarr要素を足す)
+  function naddn(n1, n2){
+    numarr[n1] += numarr[n2];
+  }
+
+  //numarrの足し算(numarr要素に実際に数字を足す)
+  function naddx(n, x){
+    numarr[n] += x;
+  }
+
+  //Math.randomの糖衣
+  function rand(){
+    return(Math.random());
+  }
+
+  //Math.floorの糖衣
+  function flor(x){
+    return(Math.floor(x));
+  }
+
+  //Math.ceilの糖衣
+  function ceil(x){
+    return(Math.ceil(x));
+  }
+   </script>
+</html>
