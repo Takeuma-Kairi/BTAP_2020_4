@@ -1,5 +1,5 @@
 body{
-	background-color:#085e30;
+	background-color:#092315;
 	color:#fdfdff;
 }
 
@@ -48,8 +48,8 @@ body{
 
 /*ページ読み込みのinput fileのところ*/
     .load_div{
-      border:#ff1100 double 4px;
-      background-color:#085e32;
+      border:#da2a04 double 4px;
+      background-color:#185034;
     }
 
 /*もちものタグのラジオボタン*/
@@ -62,6 +62,6 @@ body{
 
     .div_border{
       padding: 8px;
-      border:#e43d19 solid 5px;
-      background-color: #085e32;
+      border:#da2a04 solid 5px;
+      background-color: #185034;
     }
