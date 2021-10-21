@@ -158,6 +158,7 @@
     </div>
   </div>
 </body>
+
   <script>
   var flgarr = [];  //フラグ
   var itearr = [];  //アイテム[nam:名前, exp:説明, hav:true/falseで所有]
@@ -176,7 +177,8 @@
 
 //==============================================================================
 //セーブデータ~===================================================================
-//セーブデータを変更する。ファイルへの書き出しの
+  //セーブデータを変更する。ファイルへの書き出しの
+
 function write_savefile(){
   try{
     var savedata = makesave();
@@ -192,7 +194,6 @@ function write_savefile(){
     alert("エラーあり。")
   }
 }
-
 
 //セーブデータのロード
 document.getElementById("savefile").addEventListener('change', function(evt){
@@ -210,37 +211,6 @@ document.getElementById("savefile").addEventListener('change', function(evt){
       alert("ファイル選択にエラーあり。");
     }
 });
-
-//==============================================================================
-  //ページデータを得る。ファイルからの読み込み
-  document.getElementById("myfile").addEventListener('change', function(evt){
-    try{
-      var myFile = document.getElementById("myfile").files[0];
-      var reader = new FileReader();
-      reader.onload = function (evt){
-        var txt = evt.target.result;
-        load_date(txt);   //load_dateへと送る
-      }
-      reader.readAsText(myFile, "utf-8");
-      document.getElementById("form_page").reset();
-    }catch{
-      alert("ファイル選択にエラーがあります。");
-    }
-
-
-    var v_chb_readme = document.getElementById("chb_readme"); //リードミーの入手とアイテム欄非表示を初期化
-    var v_chb_noitem = document.getElementById("chb_noitem");
-
-    v_chb_readme.checked=false;
-    v_chb_noitem.checked=false;
-    if(v_chb_readme.checked){
-      get_explanation();
-    }
-
-    if(v_chb_noitem.checked){
-      show_item();
-    }
-  });
 
 
   //セーブデータのロード
@@ -313,9 +283,38 @@ function makesave(){
     return(ans);
   }
 
+//==============================================================================
+  //ページデータを得る。ファイルからの読み込み
+  document.getElementById("myfile").addEventListener('change', function(evt){
+    try{
+      var myFile = document.getElementById("myfile").files[0];
+      var reader = new FileReader();
+      reader.onload = function (evt){
+        var txt = evt.target.result;
+        load_date(txt);   //load_dateへと送る
+      }
+      reader.readAsText(myFile, "utf-8");
+      document.getElementById("form_page").reset();
+    }catch{
+      alert("ファイル選択にエラーがあります。");
+    }
 
 
+    var v_chb_readme = document.getElementById("chb_readme"); //リードミーの入手とアイテム欄非表示を初期化
+    var v_chb_noitem = document.getElementById("chb_noitem");
 
+    v_chb_readme.checked=false;
+    v_chb_noitem.checked=false;
+    if(v_chb_readme.checked){
+      get_explanation();
+    }
+
+    if(v_chb_noitem.checked){
+      show_item();
+    }
+  });
+
+//=======================================
   //ページデータを整形して得る
 function load_date(scr){
     //fie=0; //ページ番号
@@ -787,6 +786,5 @@ function mov(tow) {
 			alert("error!");
 		}
 	}
-
    </script>
 </html>
